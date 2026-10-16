@@ -6,15 +6,15 @@ module TOML
   #
   # Mirrors the type returned by `crystal-community/TOML.cr` so a
   # consumer can drop in `toml` without rewriting their
-  # call sites that pattern-match on the value.
-  alias Type = Nil | String | Int64 | Float64 | Bool | Time | Time::Span |
-               Array(Type) | Hash(String, Type)
+  # call sites that pattern-match on the value (explicit leading `Nil`, as in TOML.cr).
+  alias Type = Nil | String | Int64 | Float64 | Bool | Time | Time::Span | Array(Type) | Hash(String, Type) # ameba:disable Style/VerboseNilType
 
   # Walks a `Document` AST and produces a plain `Hash(String, Type)`.
   #
   # All trivia (comments, blanks, formatting) is discarded; only the
   # logical structure is kept. The resulting hash is suitable for
   # `crystal-community/TOML.cr` users migrating to this shard.
+
   module HashBuilder
     extend self
 

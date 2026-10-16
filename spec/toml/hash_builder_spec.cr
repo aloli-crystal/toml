@@ -13,7 +13,7 @@ describe "TOML.parse_to_hash" do
       TOML
     h["title"].should eq("Example")
     h["port"].should eq(8080_i64)
-    h["enabled"].should eq(true)
+    h["enabled"].should be_true
   end
 
   it "drops comments and blank lines" do
@@ -96,7 +96,7 @@ describe "TOML.parse_to_hash" do
     h["title"].should eq("TOML Example")
     db = h["database"].as(Hash(String, TOML::Type))
     db["ports"].as(Array(TOML::Type)).should eq([8001_i64, 8001_i64, 8002_i64])
-    db["enabled"].should eq(true)
+    db["enabled"].should be_true
     inner = db["data"].as(Array(TOML::Type))
     inner[0].as(Array(TOML::Type)).should eq(["delta", "phi"])
     inner[1].as(Array(TOML::Type)).should eq([3.14])

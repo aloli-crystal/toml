@@ -1,5 +1,5 @@
 name: toml
-version: 0.1.4
+version: 0.1.5
 
 description: |
   TOML v1.0 parser and serializer for Crystal, with comment-and-format
@@ -22,4 +22,4 @@ targets:
 development_dependencies:
   ameba:
     github: crystal-ameba/ameba
-    version: "~> 1.6"
+    version: "~> 1.7"

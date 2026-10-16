@@ -186,7 +186,7 @@ module TOML
 
     private def peek_byte(offset : Int32 = 1) : UInt8?
       idx = @pos + offset
-      return nil if idx >= @bytes.size
+      return if idx >= @bytes.size
       @bytes[idx]
     end
 

@@ -166,7 +166,7 @@ module TOML
     end
 
     private def decode_number(raw : String) : Value?
-      return nil if raw.empty?
+      return if raw.empty?
 
       # Hex / oct / bin integers (no sign permitted, no
       # underscore directly after the prefix, lowercase prefix
@@ -178,20 +178,20 @@ module TOML
         when 'b' then return decode_int_radix(raw, 2, 2)
         when 'X', 'O', 'B'
           # Uppercase prefix not allowed.
-          return nil
+          return
         end
       end
 
       # Strip an optional sign for leading-zero detection.
       body_start = (raw[0] == '+' || raw[0] == '-') ? 1 : 0
       body = raw[body_start..]
-      return nil if body.empty?
+      return if body.empty?
 
       # Reject leading zeros on integer-shape literals: `07`, `0_0`,
       # `+007`, `-01`. A leading `0` followed by `.`, `e` or `E` is
       # not an integer here — `decode_float` handles it below.
       if body.size > 1 && body[0] == '0' && body[1] != '.' && body[1] != 'e' && body[1] != 'E'
-        return nil
+        return
       end
 
       # Exponential form (or float-shape): delegate to decode_float.
@@ -200,9 +200,9 @@ module TOML
       end
 
       # Underscore must not bound the body.
-      return nil if body[0] == '_' || body[-1] == '_'
+      return if body[0] == '_' || body[-1] == '_'
       cleaned = strip_underscores_decimal(body, body_start > 0 ? raw[0..0] : "")
-      return nil unless cleaned
+      return unless cleaned
       i = cleaned.to_i64?
       i ? IntegerValue.new(raw, i) : nil
     end
@@ -217,11 +217,11 @@ module TOML
         if c == '_'
           prev = i > 0 ? chars[i - 1] : nil
           nxt = i + 1 < chars.size ? chars[i + 1] : nil
-          return nil unless prev && nxt && prev.ascii_number? && nxt.ascii_number?
+          return unless prev && nxt && prev.ascii_number? && nxt.ascii_number?
         elsif c.ascii_number?
           result << c
         else
-          return nil
+          return
         end
       end
       result.to_s
@@ -229,12 +229,12 @@ module TOML
 
     private def decode_int_radix(raw : String, body_start : Int32, radix : Int32) : IntegerValue?
       body = raw[body_start..]
-      return nil if body.empty?
+      return if body.empty?
       # Underscore must not bound the body (`0x_DEAD`, `0xDEAD_`).
-      return nil if body[0] == '_' || body[-1] == '_'
+      return if body[0] == '_' || body[-1] == '_'
       cleaned = strip_underscores_radix(body, radix)
-      return nil unless cleaned
-      return nil if cleaned.empty?
+      return unless cleaned
+      return if cleaned.empty?
       i = cleaned.to_i64?(radix)
       i ? IntegerValue.new(raw, i) : nil
     end
@@ -250,11 +250,11 @@ module TOML
         if c == '_'
           prev = i > 0 ? chars[i - 1] : nil
           nxt = i + 1 < chars.size ? chars[i + 1] : nil
-          return nil unless prev && nxt && radix_digit?(prev, radix) && radix_digit?(nxt, radix)
+          return unless prev && nxt && radix_digit?(prev, radix) && radix_digit?(nxt, radix)
         elsif radix_digit?(c, radix)
           result << c
         else
-          return nil
+          return
         end
       end
       result.to_s
@@ -273,30 +273,30 @@ module TOML
     # or with an exponent. Used by the parser when it has reassembled
     # the parts that the lexer emitted as `Atom Dot Atom`.
     def decode_float(raw : String) : FloatValue?
-      return nil if raw.empty?
+      return if raw.empty?
 
       sign_offset = (raw[0] == '+' || raw[0] == '-') ? 1 : 0
       body = raw[sign_offset..]
-      return nil if body.empty?
+      return if body.empty?
 
       # Body must not start or end with a structural character.
       first = body[0]
       last = body[-1]
-      return nil if first == '.' || first == '_' || first == 'e' || first == 'E'
-      return nil if last == '.' || last == '_' || last == 'e' || last == 'E' || last == '+' || last == '-'
+      return if first == '.' || first == '_' || first == 'e' || first == 'E'
+      return if last == '.' || last == '_' || last == 'e' || last == 'E' || last == '+' || last == '-'
 
       # Reject leading zero on an integer part with more than one
       # character before the `.` or `e` (rules out `07.5`, `+02.0`).
       if first == '0' && body.size > 1
         second = body[1]
-        return nil if second != '.' && second != 'e' && second != 'E'
+        return if second != '.' && second != 'e' && second != 'E'
       end
 
       # `.` must be present at most once and bordered by digits.
       if dot_idx = body.index('.')
-        return nil unless body[dot_idx - 1].ascii_number?
-        return nil unless body[dot_idx + 1].ascii_number?
-        return nil if body.index('.', dot_idx + 1) # two dots
+        return unless body[dot_idx - 1].ascii_number?
+        return unless body[dot_idx + 1].ascii_number?
+        return if body.index('.', dot_idx + 1) # two dots
       end
 
       # Each `_` must lie between two ASCII digits, anywhere in the
@@ -306,7 +306,7 @@ module TOML
         next unless c == '_'
         prev = i > 0 ? body[i - 1] : nil
         nxt = i + 1 < body.size ? body[i + 1] : nil
-        return nil unless prev && nxt && prev.ascii_number? && nxt.ascii_number?
+        return unless prev && nxt && prev.ascii_number? && nxt.ascii_number?
       end
 
       cleaned = (sign_offset == 1 ? raw[0..0] + body : body).delete('_')

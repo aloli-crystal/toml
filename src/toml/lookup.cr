@@ -17,9 +17,9 @@ module TOML
     def get?(path : Array(String)) : Type?
       h : Type = to_h
       path.each do |segment|
-        return nil unless h.is_a?(Hash(String, Type))
+        return unless h.is_a?(Hash(String, Type))
         h = h[segment]?
-        return nil if h.nil?
+        return if h.nil?
       end
       h
     end

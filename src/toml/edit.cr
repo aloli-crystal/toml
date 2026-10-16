@@ -177,7 +177,7 @@ module TOML
     private def top_level_kv_index(key : String) : Int32?
       @nodes.each_with_index do |node, i|
         case node
-        when TableHeaderLine, ArrayOfTablesLine then return nil
+        when TableHeaderLine, ArrayOfTablesLine then return
         when KeyValueLine
           path = node.key.path
           return i if path.size == 1 && path[0] == key
