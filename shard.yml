@@ -1,5 +1,5 @@
 name: toml
-version: 0.1.6
+version: 0.1.7
 
 description: |
   TOML v1.0 parser and serializer for Crystal, with comment-and-format
